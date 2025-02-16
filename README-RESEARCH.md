@@ -1,6 +1,6 @@
 # Research
 
-StreamInterop is based on research including the following projects:
+Stream-Interop is based on research including the following projects:
 
 - amphp/byte-stream: https://github.com/amphp/byte-stream (amphp)
 - fzaninotto/streamer: https://github.com/fzaninotto/Streamer (fzan)

@@ -3,7 +3,7 @@
 [![PDS Skeleton](https://img.shields.io/badge/pds-skeleton-blue.svg?style=flat-square)](https://github.com/php-pds/skeleton)
 [![PDS Composer Script Names](https://img.shields.io/badge/pds-composer--script--names-blue?style=flat-square)](https://github.com/php-pds/composer-script-names)
 
-This package publishes interoperable interfaces providing a more object-oriented approach to encapsulating and interacting with stream resources in PHP 8.4+. It reflects, refines, and reconciles the common practices identified within [several pre-existing projects][README-RESEARCH.md].
+Stream-Interop publishes a standard set of interoperable interfaces providing a more object-oriented approach to encapsulating and interacting with stream resources in PHP 8.4+. It reflects, refines, and reconciles the common practices identified within [several pre-existing projects][README-RESEARCH.md].
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to be interpreted as described in [BCP 14][] ([RFC 2119][], [RFC 8174][]).
 
@@ -13,20 +13,21 @@ This package attempts to adhere to the [Package Development Standards](https://p
 
 Stream-Interop defines separate interfaces for various affordances around stream resources so that (1) implementations can advertise well-tailored affordances, and (2) consumers can typehint to the specific affordances they require for specific situations:
 
-- [_Stream_](#user-content-stream) is a common baseline for streams.
-- [_ResourceStream_](#ruser-content-esourcestream) affords direct access to the encapsulated resource.
-- [_ClosableStream_](#user-content-closablestream) affords closing the stream.
-- [_SizableStream_](#user-content-sizablestream) affords getting the full length of the stream in bytes.
-- [_ReadableStream_](#user-content-readablestream) affords reading from the stream.
-- [_SeekableStream_](#user-content-seekablestream) affords moving the stream pointer.
-- [_StringableStream_](#user-content-stringablestream) affords casting the stream to a string.
-- [_WritableStream_](#user-content-writablestream) affords writing to the stream.
+- [_Stream_](#stream) is a common baseline for streams.
+- [_ResourceStream_](#resourcestream) affords direct access to the encapsulated resource.
+- [_ClosableStream_](#closablestream) affords closing the stream.
+- [_SizableStream_](#sizablestream) affords getting the full length of the stream in bytes.
+- [_ReadableStream_](#readablestream) affords reading from the stream.
+- [_SeekableStream_](#seekablestream) affords moving the stream pointer.
+- [_StringableStream_](#stringablestream) affords casting the stream to a string.
+- [_WritableStream_](#writablestream) affords writing to the stream.
+- [_StreamTypeAliases_](#streamtypealiases) defines PHPStan type aliases.
 
 ### _Stream_
 
 The _Stream_ interface defines these properties common to all streams:
 
-- `public MetadataArray $metadata { get; }`
+- `public stream_metadata_array $metadata { get; }`
     - Represents the metadata for the encapsulated resource as if by [`stream_get_meta_data()`][].
     - It MUST provide the most-recent metadata for the encapsulated resource at the moment of property access.
     - It MUST NOT be publicly settable, either as a property or via property hook or method.
@@ -38,27 +39,6 @@ It also defines these methods common to all streams:
 
 - `public function isOpen() : bool`
     - Returns true if the encapsulated resource is still open, or false if not.
-
-Finally, it provides this custom PHPStan type to assist static analysis:
-
-- `MetadataArray` as if by [`stream_get_meta_data()`][]:
-
-    ```
-    array{
-        timed_out: bool,
-        blocked: bool,
-        eof: bool,
-        unread_bytes: int,
-        stream_type: string,
-        wrapper_type: string,
-        wrapper_data: mixed,
-        mode: string,
-        seekable: bool,
-        uri?: string,
-        mediatype?: string,
-        base64?: bool
-    }
-    ```
 
 Notes:
 
@@ -172,6 +152,29 @@ The _WritableStream_ interface extends _Stream_ to define a single method for wr
 If the encapsulated resource is not writable at the time it becomes available to the _WritableStream_, implementations MUST throw [_LogicException_][] (or an extension thereof).
 
 Implementations MAY write to the encapsulated resource internally without affording _WritableStream_.
+
+### _StreamTypeAliases_
+
+The _StreamTypeAliases_ interface defines this custom PHPStan type to assist static analysis:
+
+- `stream_metadata_array` as if by [`stream_get_meta_data()`][]:
+
+    ```
+    array{
+        timed_out: bool,
+        blocked: bool,
+        eof: bool,
+        unread_bytes: int,
+        stream_type: string,
+        wrapper_type: string,
+        wrapper_data: mixed,
+        mode: string,
+        seekable: bool,
+        uri?: string,
+        mediatype?: string,
+        base64?: bool
+    }
+    ```
 
 ## Implementations
 
