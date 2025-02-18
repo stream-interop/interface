@@ -27,7 +27,7 @@ Stream-Interop defines separate interfaces for various affordances around stream
 
 The _Stream_ interface defines these properties common to all streams:
 
-- `public stream_metadata_array $metadata { get; }`
+- `public metadata_array $metadata { get; }`
     - Represents the metadata for the encapsulated resource as if by [`stream_get_meta_data()`][].
     - It MUST provide the most-recent metadata for the encapsulated resource at the moment of property access.
     - It MUST NOT be publicly settable, either as a property or via property hook or method.
@@ -157,7 +157,7 @@ Implementations MAY write to the encapsulated resource internally without afford
 
 The _StreamTypeAliases_ interface defines this custom PHPStan type to assist static analysis:
 
-- `stream_metadata_array` as if by [`stream_get_meta_data()`][]:
+- `metadata_array` as if by [`stream_get_meta_data()`][]:
 
     ```
     array{
@@ -175,6 +175,27 @@ The _StreamTypeAliases_ interface defines this custom PHPStan type to assist sta
         base64?: bool
     }
     ```
+
+- `stat_array` as if by [`fstat()`][] or [`stat()`][]:
+
+    ```
+    array{
+        dev:int<0,max>,
+        ino:int<0,max>,
+        mode:int<0,max>,
+        nlink:int<0,max>,
+        uid:int<0,max>,
+        gid:int<0,max>,
+        rdev:int<0,max>,
+        size:int<0,max>,
+        atime:int<0,max>,
+        mtime:int<0,max>,
+        ctime:int<0,max>,
+        blksize:int<0,max>,
+        blocks:int<0,max>
+    }
+    ```
+
 
 ## Implementations
 
@@ -227,6 +248,7 @@ The sheer volume of possible combinations of the various interfaces makes it dif
 [`pclose()`]: https://php.net/pclose
 [`popen()`]: https://php.net/popen
 [`rewind()`]: https://php.net/rewind
+[`stat()`]: https://php.net/stat
 [`stream_get_contents()`]: https://php.net/stream_get_contents
 [`stream_get_meta_data()`]: https://php.net/stream_get_meta_data
 [BCP 14]: https://www.rfc-editor.org/info/bcp14

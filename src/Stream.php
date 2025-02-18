@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace StreamInterop\Interface;
 
 /**
- * @phpstan-import-type stream_metadata_array from StreamTypeAliases
+ * @phpstan-import-type metadata_array from StreamTypeAliases
  */
 interface Stream
 {
@@ -18,7 +18,7 @@ interface Stream
      * It MUST NOT be publicly settable, either as a property or via property
      * hook or method.
      *
-     * @var stream_metadata_array
+     * @var metadata_array
      */
     public array $metadata { get; }
 
