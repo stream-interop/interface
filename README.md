@@ -27,18 +27,18 @@ Stream-Interop defines separate interfaces for various affordances around stream
 
 The _Stream_ interface defines these properties common to all streams:
 
-- `public metadata_array $metadata { get; }`
+- `public metadata_array[] $metadata { get; }`
     - Represents the metadata for the encapsulated resource as if by [`stream_get_meta_data()`][].
-    - It MUST provide the most-recent metadata for the encapsulated resource at the moment of property access.
-    - It MUST NOT be publicly settable, either as a property or via property hook or method.
+    - Implementations MUST provide the most-recent metadata for the encapsulated resource at the moment of property access; if the encapsulated resource is closed, implementations MUST return an empty array.
+    - Implementations MUST NOT allow `$metadata` to be publicly settable, either as a property or via property hook or method.
 
 It also defines these methods common to all streams:
 
 - `public function isClosed() : bool`
-    - Returns true if the encapsulated resource has been closed, or false if not.
+    - Returns `true` if the encapsulated resource has been closed, or `false` if not.
 
 - `public function isOpen() : bool`
-    - Returns true if the encapsulated resource is still open, or false if not.
+    - Returns `true` if the encapsulated resource is still open, or `false` if not.
 
 Notes:
 
@@ -54,14 +54,14 @@ The _ResourceStream_ interface extends _Stream_ to define a property to allow pu
 
 - `public resource $resource { get; }`
     - Represents the resource as if opened by [`fopen()`][], [`fsockopen()`][], [`popen()`][], etc.
-    - It MUST be a `resource of type (stream)`; for example, as determined by `get_resource_type()`.
-    - It SHOULD NOT be publicly settable, either as a property or via property hook or method.
+    - Implementations MUST ensure `$resource` is a `resource of type (stream)`; for example, as determined by `get_resource_type()`.
+    - Implementations SHOULD NOT allow `$resource` to be publicly settable, either as a property or via property hook or method.
 
 Notes:
 
 - **Not all _Stream_ implementations need to expose the encapsulated resource.** Exposing the resource gives full control over it to consumers, who can then manipulate it however they like (e.g. close it, move the pointer, and so on). However, having access to the resource may be necessary for some consumers.
 
-- **Some _Stream_ implementations might not encapsulate a resource.** Although a resource is the most common data source for a stream, other data sources MAY be used, in which cases _ResourceStream_ is neither appropriate nor necessary.
+- **Some _Stream_ implementations might not encapsulate a resource.** Although a resource is the most common data source for a stream, other data sources MAY be used, in which cases _ResourceStream_ implementation is neither appropriate nor necessary.
 
 ### _ClosableStream_
 
@@ -83,7 +83,7 @@ Notes:
 The _SizableStream_ interface extends _Stream_ to define this method:
 
 - `public function getSize() : ?int<0,max>`
-    - Returns the length of the encapsulated resource in bytes as if by the [`fstat()`][] value for `size`, or null if indeterminate or on error.
+    - Returns the length of the encapsulated resource in bytes as if by the [`fstat()`][] value for `size`, or `null` if indeterminate or on error.
 
 Implementations MAY get the size of the encapsulated resource internally without affording _SizableStream_.
 
@@ -97,6 +97,7 @@ The _ReadableStream_ interface extends _Stream_ to define these methods for read
 
 - `public function eof() : bool`
     - Tests for end-of-file on the encapsulated resource as if by [`feof()`][].
+    - Implementations MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
 
 - `public function getContents() : string`
     - Returns the remaining contents of the resource from the current pointer position as if by [`stream_get_contents()`][].
@@ -138,6 +139,7 @@ The _StringableStream_ interface extends _Stream_ to define a single method for 
 
 - `public function __toString() : string`
     - Returns the entire contents of the encapsulated resource as if by [`rewind()`][]ing before returning [`stream_get_contents()`][].
+    - Implementations MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
 
 Implementations MAY convert the encapsulated resource to a string internally without affording _StringableStream_.
 
@@ -201,9 +203,9 @@ The _StreamTypeAliases_ interface defines this custom PHPStan type to assist sta
 
 Reference implementations are available at <https://github.com/stream-interop/impl>.
 
-Notes:
+Implementations MAY encapsulate a string, or some other kind of data source, instead of a `resource`.
 
-- **A _Stream_ implementation MAY encapsulate a string or some other kind of data source, instead of a `resource`.** In these cases, it will make no sense to implement _ResourceStream_. Implementations encapsulating something besides a `resource` MUST behave *as if* they encapsulate a resource.
+Implementations encapsulating something besides a `resource` MUST behave *as if* they encapsulate a resource.
 
 
 ## Q & A
