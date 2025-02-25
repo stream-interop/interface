@@ -21,7 +21,13 @@ Stream-Interop defines separate interfaces for various affordances around stream
 - [_SeekableStream_](#seekablestream) affords moving the stream pointer.
 - [_StringableStream_](#stringablestream) affords casting the stream to a string.
 - [_WritableStream_](#writablestream) affords writing to the stream.
-- [_StreamTypeAliases_](#streamtypealiases) defines PHPStan type aliases.
+
+Stream-Interop also defines these marker interfaces:
+
+- [_ReadonlyStream_](#readonlystream) marks the stream as enforcing readonly constraints on the encapsulated resource.
+- [_ImmutableStream_](#immutablestream) marks the stream as enforcing immutability constraints on the encapsulated resource.
+
+Finally, Stream-Interop defines an interface of [_StreamTypeAliases_](#streamtypealiases) to aid static analysis with PHPStan.
 
 ### _Stream_
 
@@ -154,6 +160,44 @@ The _WritableStream_ interface extends _Stream_ to define a single method for wr
 If the encapsulated resource is not writable at the time it becomes available to the _WritableStream_, implementations MUST throw [_LogicException_][] (or an extension thereof).
 
 Implementations MAY write to the encapsulated resource internally without affording _WritableStream_.
+
+### _ReadonlyStream_
+
+The _ReadonlyStream_ marker interface indicates the implementation attempts to enforce these constraints on the encapsulated resource:
+
+- The implementation MUST open the encapsulated resource inside the [_ReadonlyStream_][].
+
+- The implementation MUST open the encapsulated resource as `php://input` or `php://memory`.
+
+- The implementation MAY open the encapsulated resource in a mode that allows writing (`rb+`, `w+`, etc.) to allow initialization.
+
+- The implementation MAY initialize the encapsulated resource after opening (e.g., by copying a constructor argument to the encapsulated resource).
+
+- The implementation MUST NOT modify, or allow modification of, the encapsulated resource content after initialization, whether by implementing _WritableStream_ or by some other means.
+
+- The implementation MUST NOT expose the encapsulated resource, whether by implementing [_ResourceStream_][] or by some other means.
+
+- The implementation MAY allow closing of the encapsulated resource, whether by implementing [_ClosableStream_][] or by some other means.
+
+Notes:
+
+- **The readonly constraints are necessarily strict.** Whereas readonly on scalar and array properties can be implemented easily, readonly on resource property is relatively difficult. The encapsulated resource, including both its content and its pointer, must be inaccessible from outside the [_ReadonlyStream_][] to ensure they cannot be modified from outside the [_ReadonlyStream_][].
+
+### _ImmutableStream_
+
+The _ImmutableStream_ marker interface extends [_ReadonlyStream_][] and [_StringableStream_][] to indicate the implementation attempts to enforce these constraints on the encapsulated resource:
+
+- The implementation MUST adhere to all _ReadonlyStream_ restrictions.
+
+- The implementation MUST NOT allow partial reading of the encapsulated resource, whether by implementing  _ReadableStream_ or by some other means.
+
+- The implementation MUST NOT expose the state of the encapsulated resource pointer, whether by implementing _SeekableStream_ or by some other means.
+
+Notes:
+
+- **The immutability constraints are necessarily strict.** Immutability of a resource is incompatible with seeking and partial reading. Reading from the encapsulated resource modifies its pointer position, thereby changing its state. This means reading must be done in entirety, or not at all. This leaves only _StringableStream_, _ClosableStream_, and _SizableStream_ as compatible interfaces.
+
+i am not the only one who thinks this: https://www.simonholywell.com/post/2017/04/php-and-immutability-part-three/
 
 ### _StreamTypeAliases_
 
