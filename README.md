@@ -17,9 +17,9 @@ Stream-Interop defines separate interfaces for various affordances around stream
 - [_ResourceStream_](#resourcestream) affords direct access to the encapsulated resource.
 - [_ClosableStream_](#closablestream) affords closing the stream.
 - [_SizableStream_](#sizablestream) affords getting the full length of the stream in bytes.
-- [_ReadableStream_](#readablestream) affords reading from the stream.
+- [_ReadableStream_](#readablestream) affords non-idempotent reading from the stream.
 - [_SeekableStream_](#seekablestream) affords moving the stream pointer.
-- [_StringableStream_](#stringablestream) affords casting the stream to a string.
+- [_StringableStream_](#stringablestream) affords idempotent reading from the stream.
 - [_WritableStream_](#writablestream) affords writing to the stream.
 
 Stream-Interop also defines these marker interfaces:
@@ -35,8 +35,8 @@ The _Stream_ interface defines these properties common to all streams:
 
 - `public metadata_array[] $metadata { get; }`
     - Represents the metadata for the encapsulated resource as if by [`stream_get_meta_data()`][].
-    - Implementations MUST provide the most-recent metadata for the encapsulated resource at the moment of property access; if the encapsulated resource is closed, implementations MUST return an empty array.
-    - Implementations MUST NOT allow `$metadata` to be publicly settable, either as a property or via property hook or method.
+    - The implementation MUST provide the most-recent metadata for the encapsulated resource at the moment of property access; if the encapsulated resource is closed, The implementation MUST return an empty array.
+    - The implementation MUST NOT allow `$metadata` to be publicly settable, either as a property or via property hook or method.
 
 It also defines these methods common to all streams:
 
@@ -60,8 +60,8 @@ The _ResourceStream_ interface extends _Stream_ to define a property to allow pu
 
 - `public resource $resource { get; }`
     - Represents the resource as if opened by [`fopen()`][], [`fsockopen()`][], [`popen()`][], etc.
-    - Implementations MUST ensure `$resource` is a `resource of type (stream)`; for example, as determined by `get_resource_type()`.
-    - Implementations SHOULD NOT allow `$resource` to be publicly settable, either as a property or via property hook or method.
+    - The implementation MUST ensure `$resource` is a `resource of type (stream)`; for example, as determined by `get_resource_type()`.
+    - The implementation SHOULD NOT allow `$resource` to be publicly settable, either as a property or via property hook or method.
 
 Notes:
 
@@ -75,9 +75,9 @@ The _ClosableStream_ interface extends _Stream_ to define this method:
 
 - `public function close() : void`
     - Closes the encapsulated resource as if by [`fclose()`][], [`pclose()`][], etc.
-    - Implementations MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
+    - The implementation MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
 
-Implementations MAY close the encapsulated resource internally without affording _ClosableStream_.
+The implementation MAY close the encapsulated resource internally without affording _ClosableStream_.
 
 Notes:
 
@@ -91,7 +91,7 @@ The _SizableStream_ interface extends _Stream_ to define this method:
 - `public function getSize() : ?int<0,max>`
     - Returns the length of the encapsulated resource in bytes as if by the [`fstat()`][] value for `size`, or `null` if indeterminate or on error.
 
-Implementations MAY get the size of the encapsulated resource internally without affording _SizableStream_.
+The implementation MAY get the size of the encapsulated resource internally without affording _SizableStream_.
 
 Notes:
 
@@ -99,27 +99,29 @@ Notes:
 
 ### _ReadableStream_
 
-The _ReadableStream_ interface extends _Stream_ to define these methods for reading from a resource:
+The _ReadableStream_ interface extends _Stream_ to afford these methods for non-idempotent reading from a resource:
 
 - `public function eof() : bool`
     - Tests for end-of-file on the encapsulated resource as if by [`feof()`][].
-    - Implementations MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
+    - The implementation MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
 
 - `public function getContents() : string`
     - Returns the remaining contents of the resource from the current pointer position as if by [`stream_get_contents()`][].
-    - Implementations MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
+    - The implementation MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
 
 - `public function read(int<1,max> $length) : string`
     - Returns up to `$length` bytes from the encapsulated resource as if by [`fread()`][].
-    - Implementations MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
+    - The implementation MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
 
-If the encapsulated resource is not readable at the time it becomes available to the _ReadableStream_, implementations MUST throw [_LogicException_][] (or an extension thereof).
+If the encapsulated resource is not readable at the time it becomes available to the _ReadableStream_, The implementation MUST throw [_LogicException_][] (or an extension thereof).
 
-Implementations MAY read from the encapsulated resource internally without affording _ReadableStream_.
+The implementation MAY read from the encapsulated resource internally without affording _ReadableStream_.
 
 Notes:
 
-- **`eof()` is on _ReadableStream_, not _Stream_ or _SeekableStream_.** End-of-file is determined as a function of reading past the end of the file, not as of seeking to the end of the file. Cf. <https://www.php.net/manual/en/function.feof.php#122925>.
+- **`[eof()`][] is on _ReadableStream_, not _Stream_ or _SeekableStream_.** End-of-file is determined as a function of reading past the end of the file, not as of seeking to the end of the file. Cf. <https://www.php.net/manual/en/function.feof.php#122925>.
+
+- **These methods are non-idempotent.** They may return different results on repeated sequential calls, and may have side effects (e.g., changing the position of the pointer.)
 
 ### _SeekableStream_
 
@@ -127,27 +129,45 @@ The _SeekableStream_ interface extends _Stream_ to define methods for moving the
 
 - `public function rewind() : void`
     - Moves the stream pointer position to the beginning of the stream as if by [`rewind()`][].
-    - Implementations MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
+    - The implementation MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
 
 - `public function seek(int $offset, int $whence = SEEK_SET) : void`
     - Moves the stream pointer position to the `$offset` as if by [`fseek()`][].
-    - Implementations MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
+    - The implementation MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
 
 - `public function tell() : int`
     - Returns the current stream pointer position as if by [`ftell()`][].
-    - Implementations MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
+    - The implementation MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
 
-If the encapsulated resource is not seekable at the time it becomes available to the _SeekableStream_, implementations MUST throw [_LogicException_][] (or an extension thereof).
+If the encapsulated resource is not seekable at the time it becomes available to the _SeekableStream_, The implementation MUST throw [_LogicException_][] (or an extension thereof).
 
 ### _StringableStream_
 
-The _StringableStream_ interface extends _Stream_ to define a single method for returning the entire resource as a string:
+The _StringableStream_ interface extends _Stream_ to afford idempotent reading from the encaspulated resource:
 
 - `public function __toString() : string`
     - Returns the entire contents of the encapsulated resource as if by [`rewind()`][]ing before returning [`stream_get_contents()`][].
-    - Implementations MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
+    - The implementation MUST reposition the encapsulated resource pointer to its initial location.
+    - The implementation MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
 
-Implementations MAY convert the encapsulated resource to a string internally without affording _StringableStream_.
+- `public function subString(int $offset, ?int $length) : string`
+    - Returns a string from the encapsulated resource as if by [`fseek()`][]ing before reading.
+    - If the `$offset` is negative, the implementation MUST begin reading at that many bytes from the end of the stream; otherwise, the implementation MUST begin reading at that many bytes from the start of the stream.
+    - If the `$length` is null, the implementation MUST return all remaining bytes from the stream; otherwise, the implementation MUST return up to that many bytes from the stream.
+    - The implementation MUST reposition the encapsulated resource pointer to its initial location.
+    - The implementation MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
+
+If the encapsulated resource is not readable at the time it becomes available to the _StringableStream_, The implementation MUST throw [_LogicException_][] (or an extension thereof).
+
+If the encapsulated resource is not seekable at the time it becomes available to the _StringableStream_, The implementation MUST throw [_LogicException_][] (or an extension thereof).
+
+The implementation MAY convert all or part of the encapsulated resource to a string internally without affording _StringableStream_.
+
+Notes:
+
+- **These methods are idempotent.** Repeated sequential calls will return the exact same result, without exposing side effects (such as the pointer position being changed).
+
+- **Not all streams need to be stringable.** If the encapsulated resource is not seekable, it cannot be a _StringableStream_.
 
 ### _WritableStream_
 
@@ -155,15 +175,15 @@ The _WritableStream_ interface extends _Stream_ to define a single method for wr
 
 - `public function write(string|Stringable $data) : int`
     - Writes `$data` starting at the current stream pointer position, returning the number of bytes written, as if by [`fwrite()`][].
-    - Implementations MUST throw [_RuntimeException_][] on failure.
+    - The implementation MUST throw [_RuntimeException_][] on failure.
 
-If the encapsulated resource is not writable at the time it becomes available to the _WritableStream_, implementations MUST throw [_LogicException_][] (or an extension thereof).
+If the encapsulated resource is not writable at the time it becomes available to the _WritableStream_, The implementation MUST throw [_LogicException_][] (or an extension thereof).
 
-Implementations MAY write to the encapsulated resource internally without affording _WritableStream_.
+The implementation MAY write to the encapsulated resource internally without affording _WritableStream_.
 
 ### _ReadonlyStream_
 
-The _ReadonlyStream_ marker interface indicates the implementation attempts to enforce these constraints on the encapsulated resource:
+The _ReadonlyStream_ marker interface indicates the implementation attempts to enforce these constraints:
 
 - The implementation MUST open the encapsulated resource inside the [_ReadonlyStream_][].
 
@@ -185,19 +205,19 @@ Notes:
 
 ### _ImmutableStream_
 
-The _ImmutableStream_ marker interface extends [_ReadonlyStream_][] and [_StringableStream_][] to indicate the implementation attempts to enforce these constraints on the encapsulated resource:
+The _ImmutableStream_ marker interface extends [_ReadonlyStream_][] to indicate the implementation attempts to enforce these constraints:
 
-- The implementation MUST adhere to all _ReadonlyStream_ restrictions.
+- The implementation MUST adhere to all [_ReadonlyStream_][] constraints.
 
-- The implementation MUST NOT allow partial reading of the encapsulated resource, whether by implementing  _ReadableStream_ or by some other means.
+- The implementation MUST NOT allow non-idempotent reading of the encapsulated resource, whether by implementing  [_ReadableStream_[]] or by some other means.
 
-- The implementation MUST NOT expose the state of the encapsulated resource pointer, whether by implementing _SeekableStream_ or by some other means.
+- The implementation MUST NOT expose the state of the encapsulated resource pointer, whether by implementing [_SeekableStream_][] or by some other means.
+
+- The implementation MUST NOT allow mutation of the `$metadata` property.
 
 Notes:
 
-- **The immutability constraints are necessarily strict.** Immutability of a resource is incompatible with seeking and partial reading. Reading from the encapsulated resource modifies its pointer position, thereby changing its state. This means reading must be done in entirety, or not at all. This leaves only _StringableStream_, _ClosableStream_, and _SizableStream_ as compatible interfaces.
-
-i am not the only one who thinks this: https://www.simonholywell.com/post/2017/04/php-and-immutability-part-three/
+- **The immutability constraints are necessarily strict.** Immutability of a resource is incompatible with non-idempotent reading; doing so modifies its pointer position, thereby changing its state. This constraint leaves only _StringableStream_, _ClosableStream_, and _SizableStream_ as compatible interfaces.
 
 ### _StreamTypeAliases_
 
