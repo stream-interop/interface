@@ -20,7 +20,8 @@ Stream-Interop defines separate interfaces for various affordances around stream
 - [_ReadableStream_][] affords non-idempotent reading from the stream.
 - [_SeekableStream_][] affords moving the stream pointer.
 - [_StringableStream_][] affords idempotent reading from the stream.
-- [_WritableStream_][] affords writing to the stream.
+- [_WritableStream_][] affords writing to the stream at the current pointer position.
+- [_AppendableStream_][] affords writing to the stream after moving the pointer to the end.
 
 Stream-Interop also defines these marker interfaces:
 
@@ -179,6 +180,20 @@ If the encapsulated resource is not writable at the time it becomes available to
 
 The implementation MAY write to the encapsulated resource internally without affording [_WritableStream_][].
 
+### _AppendableStream_
+
+The [_AppendableStream_][] interface extends [_Stream_][] to define a single method for appending to a resource:
+
+- `public function append(string|Stringable $data) : int`
+    - Moves the pointer to the end of the stream, as if by [`fseek()`][]; then writes `$data`, returning the number of bytes written, as if by [`fwrite()`[].
+    - The implementation MUST throw [_RuntimeException_][] on failure.
+
+If the encapsulated resource is not seekable at the time it becomes available to the [_AppendableStream_][], the implementation MUST throw [_LogicException_][] (or an extension thereof).
+
+If the encapsulated resource is not writable at the time it becomes available to the [_AppendableStream_][], the implementation MUST throw [_LogicException_][] (or an extension thereof).
+
+The implementation MAY append to the encapsulated resource internally without affording [_AppendableStream_][].
+
 ### _ReadonlyStream_
 
 The [_ReadonlyStream_][] marker interface indicates the implementation attempts to enforce these constraints:
@@ -215,11 +230,13 @@ The [_ImmutableStream_][] marker interface extends [_ReadonlyStream_][] to indic
 
 - The implementation MUST NOT expose the state of the encapsulated resource pointer, whether by implementing [_SeekableStream_][] or by some other means.
 
+- The implementation MUST NOT allow closing of the encapsulated resource before the [_ImmutableStream_][] is destructed, whether by implementing [_ClosableStream_][] or by some other means.
+
 - The implementation MUST NOT allow mutation of the `$metadata` property.
 
 Notes:
 
-- **The immutability constraints are necessarily strict.** Immutability of a resource is incompatible with non-idempotent reading; doing so modifies its pointer position, thereby changing its state. This constraint leaves only [_StringableStream_][], [_ClosableStream_][], and [_SizableStream_][] as compatible interfaces.
+- **The immutability constraints are necessarily strict.** Immutability of a resource is incompatible with non-idempotent reading; doing so modifies its pointer position, thereby changing its state. Likewise, closing the resource changes its state. These constraints leave only [_StringableStream_][] and [_SizableStream_][] as compatible interfaces.
 
 ### _StreamTypeAliases_
 
