@@ -1,4 +1,4 @@
-# Stream-Interop Interface Package
+# Stream-Interop Standard Interface Package
 
 [![PDS Skeleton](https://img.shields.io/badge/pds-skeleton-blue.svg?style=flat-square)](https://github.com/php-pds/skeleton)
 [![PDS Composer Script Names](https://img.shields.io/badge/pds-composer--script--names-blue?style=flat-square)](https://github.com/php-pds/composer-script-names)
@@ -284,12 +284,15 @@ The _StreamTypeAliases_ interface defines this custom PHPStan type to assist sta
 
 ## Implementations
 
-Reference implementations are available at <https://github.com/stream-interop/impl>.
-
 Implementations MAY encapsulate a string, or some other kind of data source, instead of a `resource`.
 
 Implementations encapsulating something besides a `resource` MUST behave *as if* they encapsulate a resource.
 
+Implementations MAY define additional class members not defined in these interfaces.
+
+Notes:
+
+- **Reference implementations** are avaliable at <https://github.com/stream-interop/impl>.
 
 ## Q & A
 
