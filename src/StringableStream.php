@@ -49,5 +49,5 @@ interface StringableStream extends Stream, Stringable
      *
      * @param ?int<0,max> $length
      */
-    function subString(int $offset, ?int $length = null) : string;
+    public function subString(int $offset, ?int $length = null) : string;
 }
