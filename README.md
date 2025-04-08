@@ -290,7 +290,11 @@ Implementations encapsulating something besides a `resource` MUST behave *as if*
 
 Implementations MAY define additional class members not defined in these interfaces.
 
+Implementations advertised as readonly or immutable MUST be deeply readonly or immutable. With the exception of implementations meeting the specified [_ReadonlyStream_][] or [_ImmutableStream_][] conditions, they MUST NOT encapsulate any references, resources, mutable objects, objects or arrays encapsulating references or resources or mutable objects, and so on.
+
 Notes:
+
+- **Reflection does not invalidate advertisements of readonly or immutable implementations.** The ability of a consumer to use Reflection to mutate an implementation advertised as readonly or immutable does not constitute a failure to comply with Stream-Interop.
 
 - **Reference implementations** are avaliable at <https://github.com/stream-interop/impl>.
 
@@ -322,6 +326,7 @@ The sheer volume of possible combinations of the various interfaces makes it dif
 
 * * *
 
+[_AppendableStream_]: #appendablestream
 [_ClosableStream_]: #closablestream
 [_ImmutableStream_]: #immutablestream
 [_LogicException_]: https://php.net/LogicException
