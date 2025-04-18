@@ -21,7 +21,6 @@ Stream-Interop defines separate interfaces for various affordances around stream
 - [_SeekableStream_][] affords moving the stream pointer.
 - [_StringableStream_][] affords idempotent reading from the stream.
 - [_WritableStream_][] affords writing to the stream at the current pointer position.
-- [_AppendableStream_][] affords writing to the stream after moving the pointer to the end.
 
 Stream-Interop also defines these marker interfaces:
 
@@ -180,20 +179,6 @@ If the encapsulated resource is not writable at the time it becomes available to
 
 The implementation MAY write to the encapsulated resource internally without affording [_WritableStream_][].
 
-### _AppendableStream_
-
-The [_AppendableStream_][] interface extends [_Stream_][] to define a single method for appending to a resource:
-
-- `public function append(string|Stringable $data) : int`
-    - Moves the pointer to the end of the stream, as if by [`fseek()`][]; then writes `$data`, returning the number of bytes written, as if by [`fwrite()`[].
-    - The implementation MUST throw [_RuntimeException_][] on failure.
-
-If the encapsulated resource is not seekable at the time it becomes available to the [_AppendableStream_][], the implementation MUST throw [_LogicException_][] (or an extension thereof).
-
-If the encapsulated resource is not writable at the time it becomes available to the [_AppendableStream_][], the implementation MUST throw [_LogicException_][] (or an extension thereof).
-
-The implementation MAY append to the encapsulated resource internally without affording [_AppendableStream_][].
-
 ### _ReadonlyStream_
 
 The [_ReadonlyStream_][] marker interface indicates the implementation attempts to enforce these constraints:
@@ -288,9 +273,9 @@ Implementations MAY encapsulate a string, or some other kind of data source, ins
 
 Implementations encapsulating something besides a `resource` MUST behave *as if* they encapsulate a resource.
 
-Implementations MAY define additional class members not defined in these interfaces.
-
 Implementations advertised as readonly or immutable MUST be deeply readonly or immutable. With the exception of implementations meeting the specified [_ReadonlyStream_][] or [_ImmutableStream_][] conditions, they MUST NOT encapsulate any references, resources, mutable objects, objects or arrays encapsulating references or resources or mutable objects, and so on.
+
+Implementations MAY define additional class members not defined in these interfaces; implementations advertised as readonly or immutable MUST make those additional class members deeply readonly or immutable.
 
 Notes:
 
@@ -326,7 +311,6 @@ The sheer volume of possible combinations of the various interfaces makes it dif
 
 * * *
 
-[_AppendableStream_]: #appendablestream
 [_ClosableStream_]: #closablestream
 [_ImmutableStream_]: #immutablestream
 [_LogicException_]: https://php.net/LogicException
