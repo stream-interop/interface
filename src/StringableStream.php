@@ -8,12 +8,12 @@ use Stringable;
 
 /**
  * If the encapsulated resource is not readable at the time it becomes
- * available to the StringableStream, the implementation MUST throw
- * LogicException (or an extension thereof).
+ * available to the StringableStream, the implementation MUST throw a
+ * StreamThrowable.
  *
  * If the encapsulated resource is not seekable at the time it becomes
- * available to the StringableStream, the implementation MUST throw
- * LogicException (or an extension thereof).
+ * available to the StringableStream, the implementation MUST throw a
+ * StreamThrowable.
  */
 interface StringableStream extends Stream, Stringable
 {
@@ -24,8 +24,7 @@ interface StringableStream extends Stream, Stringable
      * The implementation MUST reposition the encapsulated resource pointer to
      * its initial location.
      *
-     * The implementation MUST throw RuntimeException (or an extension thereof)
-     * on failure.
+     * @throws StreamThrowable on failure.
      */
     public function __toString() : string;
 
@@ -44,10 +43,8 @@ interface StringableStream extends Stream, Stringable
      * The implementation MUST reposition the encapsulated resource pointer to
      * its initial location.
      *
-     * The implementation MUST throw RuntimeException (or an extension thereof)
-     * on failure.
-     *
      * @param ?int<0,max> $length
+     * @throws StreamThrowable on failure.
      */
     public function subString(int $offset, ?int $length = null) : string;
 }

@@ -3,12 +3,10 @@ declare(strict_types=1);
 
 namespace StreamInterop\Interface;
 
-use RuntimeException;
-
 /**
  * If the encapsulated resource is not readable at the time it becomes
- * available to the ReadableStream, implementations MUST throw LogicException
- * (or an extension thereof).
+ * available to the ReadableStream, implementations MUST throw a
+ * StreamThrowable.
  */
 interface ReadableStream extends Stream
 {
@@ -22,7 +20,7 @@ interface ReadableStream extends Stream
      * fread().
      *
      * @param int<1,max> $length
-     * @throws RuntimeException on failure.
+     * @throws StreamThrowable on failure.
      */
     public function read(int $length) : string;
 
@@ -30,7 +28,7 @@ interface ReadableStream extends Stream
      * Returns the remaining contents of the resource from the current pointer
      * position as if by stream_get_contents().
      *
-     * @throws RuntimeException on failure.
+     * @throws StreamThrowable on failure.
      */
     public function getContents() : string;
 }

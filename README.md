@@ -26,6 +26,7 @@ Stream-Interop also defines these marker interfaces:
 
 - [_ReadonlyStream_][] marks the stream as enforcing readonly constraints on the encapsulated resource.
 - [_ImmutableStream_][] marks the stream as enforcing immutability constraints on the encapsulated resource.
+- [_StreamThrowable_][] marks an [_Exception_] as stream-related.
 
 Finally, Stream-Interop defines an interface of [_StreamTypeAliases_][] to aid static analysis with PHPStan.
 
@@ -75,14 +76,13 @@ The [_ClosableStream_][] interface extends [_Stream_][] to define this method:
 
 - `public function close() : void`
     - Closes the encapsulated resource as if by [`fclose()`][], [`pclose()`][], etc.
-    - The implementation MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
+    - The implementation MUST throw a [_StreamThrowable_][] on failure.
 
 The implementation MAY close the encapsulated resource internally without affording [_ClosableStream_][].
 
 Notes:
 
 - **Not all [_Stream_][] implementations need to be closable.** It may be important for resource closing to be handled by a separate service or authority, and not be closable by [_Stream_][] consumers.
-
 
 ### _SizableStream_
 
@@ -103,17 +103,17 @@ The [_ReadableStream_][] interface extends [_Stream_][] to afford these methods 
 
 - `public function eof() : bool`
     - Tests for end-of-file on the encapsulated resource as if by [`feof()`][].
-    - The implementation MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
+    - The implementation MUST throw a [_StreamThrowable_][] on failure.
 
 - `public function getContents() : string`
     - Returns the remaining contents of the resource from the current pointer position as if by [`stream_get_contents()`][].
-    - The implementation MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
+    - The implementation MUST throw a [_StreamThrowable_][] on failure.
 
 - `public function read(int<1,max> $length) : string`
     - Returns up to `$length` bytes from the encapsulated resource as if by [`fread()`][].
-    - The implementation MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
+    - The implementation MUST throw a [_StreamThrowable_][] on failure.
 
-If the encapsulated resource is not readable at the time it becomes available to the [_ReadableStream_][], the implementation MUST throw [_LogicException_][] (or an extension thereof).
+If the encapsulated resource is not readable at the time it becomes available to the [_ReadableStream_][], the implementation MUST throw a [_StreamThrowable_][] .
 
 The implementation MAY read from the encapsulated resource internally without affording [_ReadableStream_][].
 
@@ -129,17 +129,17 @@ The [_SeekableStream_][] interface extends [_Stream_][] to define methods for mo
 
 - `public function rewind() : void`
     - Moves the stream pointer position to the beginning of the stream as if by [`rewind()`][].
-    - The implementation MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
+    - The implementation MUST throw a [_StreamThrowable_][] on failure.
 
 - `public function seek(int $offset, int $whence = SEEK_SET) : void`
     - Moves the stream pointer position to the `$offset` as if by [`fseek()`][].
-    - The implementation MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
+    - The implementation MUST throw a [_StreamThrowable_][] on failure.
 
 - `public function tell() : int`
     - Returns the current stream pointer position as if by [`ftell()`][].
-    - The implementation MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
+    - The implementation MUST throw a [_StreamThrowable_][] on failure.
 
-If the encapsulated resource is not seekable at the time it becomes available to the [_SeekableStream_][], the implementation MUST throw [_LogicException_][] (or an extension thereof).
+If the encapsulated resource is not seekable at the time it becomes available to the [_SeekableStream_][], the implementation MUST throw a [_StreamThrowable_][] .
 
 ### _StringableStream_
 
@@ -148,18 +148,18 @@ The [_StringableStream_][] interface extends [_Stream_][] to afford idempotent r
 - `public function __toString() : string`
     - Returns the entire contents of the encapsulated resource as if by [`rewind()`][]ing before returning [`stream_get_contents()`][].
     - After reading, The implementation MUST reposition the encapsulated resource pointer to its initial location.
-    - The implementation MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
+    - The implementation MUST throw a [_StreamThrowable_][] on failure.
 
 - `public function subString(int $offset, ?int $length) : string`
     - Returns a string from the encapsulated resource as if by [`fseek()`][]ing before reading.
     - If the `$offset` is negative, the implementation MUST begin reading at that many bytes from the end of the stream; otherwise, the implementation MUST begin reading at that many bytes from the start of the stream.
     - If the `$length` is null, the implementation MUST return all remaining bytes from the stream; otherwise, the implementation MUST return up to that many bytes from the stream.
     - After reading, the implementation MUST reposition the encapsulated resource pointer to its initial location.
-    - The implementation MUST throw [_RuntimeException_][] (or an extension thereof) on failure.
+    - The implementation MUST throw a [_StreamThrowable_][] on failure.
 
-If the encapsulated resource is not readable at the time it becomes available to the [_StringableStream_][], the implementation MUST throw [_LogicException_][] (or an extension thereof).
+If the encapsulated resource is not readable at the time it becomes available to the [_StringableStream_][], the implementation MUST throw a [_StreamThrowable_][] .
 
-If the encapsulated resource is not seekable at the time it becomes available to the [_StringableStream_][], the implementation MUST throw [_LogicException_][] (or an extension thereof).
+If the encapsulated resource is not seekable at the time it becomes available to the [_StringableStream_][], the implementation MUST throw a [_StreamThrowable_][] .
 
 The implementation MAY convert all or part of the encapsulated resource to a string internally without affording [_StringableStream_][].
 
@@ -173,9 +173,9 @@ The [_WritableStream_][] interface extends [_Stream_][] to define a single metho
 
 - `public function write(string|Stringable $data) : int`
     - Writes `$data` starting at the current stream pointer position, returning the number of bytes written, as if by [`fwrite()`][].
-    - The implementation MUST throw [_RuntimeException_][] on failure.
+    - The implementation MUST throw a [_StreamThrowable_][] on failure.
 
-If the encapsulated resource is not writable at the time it becomes available to the [_WritableStream_][], the implementation MUST throw [_LogicException_][] (or an extension thereof).
+If the encapsulated resource is not writable at the time it becomes available to the [_WritableStream_][], the implementation MUST throw a [_StreamThrowable_][] .
 
 The implementation MAY write to the encapsulated resource internally without affording [_WritableStream_][].
 
@@ -222,6 +222,10 @@ The [_ImmutableStream_][] marker interface extends [_ReadonlyStream_][] to indic
 Notes:
 
 - **The immutability constraints are necessarily strict.** Immutability of a resource is incompatible with non-idempotent reading; doing so modifies its pointer position, thereby changing its state. Likewise, closing the resource changes its state. These constraints leave only [_StringableStream_][] and [_SizableStream_][] as compatible interfaces.
+
+### _StreamThrowable_
+
+The _StreamThrowable_ interface extends [_Throwable_][] to mark an [_Exception_][] as stream-related. It adds no class members.
 
 ### _StreamTypeAliases_
 
@@ -312,17 +316,18 @@ The sheer volume of possible combinations of the various interfaces makes it dif
 * * *
 
 [_ClosableStream_]: #closablestream
+[_Exception_]: https://php.net/Exception
 [_ImmutableStream_]: #immutablestream
-[_LogicException_]: https://php.net/LogicException
 [_ReadableStream_]: #readablestream
 [_ReadonlyStream_]: #readonlystream
 [_ResourceStream_]: #resourcestream
-[_RuntimeException_]: https://php.net/RuntimeException
 [_SeekableStream_]: #seekablestream
 [_SizableStream_]: #sizablestream
 [_Stream_]: #stream
+[_StreamThrowable_]: #streamthrowable
 [_StreamTypeAliases_]: #streamtypealiases
 [_StringableStream_]: #stringablestream
+[_Throwable_]: https://php.net/Throwable
 [_WritableStream_]: #writablestream
 [`fclose()`]: https://php.net/fclose
 [`feof()`]: https://php.net/feof
