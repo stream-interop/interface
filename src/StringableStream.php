@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace StreamInterop\Interface;
 
-use Generator;
 use Stringable;
 
 /**
@@ -32,11 +31,11 @@ interface StringableStream extends Stream, Stringable
      * Returns a string from the resource as if by seeking to an offset before
      * returning up to a certain number of bytes.
      *
-     * If the `$offset` is negative, the implementation MUST begin reading at
+     * If the $offset is negative, the implementation MUST begin reading at
      * that many bytes from the end of the stream; otherwise, the implementation
      * MUST begin reading at that many bytes from teh start of the stream.
      *
-     * If the `$length` is null, the implementation MUST return all remaining
+     * If the $length is null, the implementation MUST return all remaining
      * bytes from the stream; otherwise, the implementation MUST return up to
      * that many bytes from the stream.
      *

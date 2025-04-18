@@ -16,7 +16,7 @@ namespace StreamInterop\Interface;
  * - The implementation MUST NOT expose the state of the encapsulated resource
  *   pointer, whether by implementing SeekableStream or by some other means.
  *
- * - The implementation MUST NOT allow mutation of the `$metadata` property.
+ * - The implementation MUST NOT allow mutation of the $metadata property.
  */
 interface ImmutableStream extends ReadonlyStream, StringableStream
 {
