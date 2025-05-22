@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.0.0
+
+Stable release.
+
 ## 1.0.0-beta2
 
 - Introduce StreamThrowable interface for stream-related exceptions.
