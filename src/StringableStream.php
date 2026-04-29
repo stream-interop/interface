@@ -6,22 +6,28 @@ namespace StreamInterop\Interface;
 use Stringable;
 
 /**
- * If the encapsulated resource is not readable at the time it becomes
- * available to the StringableStream, the implementation MUST throw a
- * StreamThrowable.
+ * [_StringableStream_][] affords idempotent reading from the stream.
  *
- * If the encapsulated resource is not seekable at the time it becomes
- * available to the StringableStream, the implementation MUST throw a
- * StreamThrowable.
+ * - Directives:
+ *
+ *     - If the encapsulated resource is not readable at the time it becomes
+ *       available to the [_StringableStream_][], implementations MUST throw a
+ *       [_StreamThrowable_][].
+ *
+ *     - If the encapsulated resource is not seekable at the time it becomes
+ *       available to the [_StringableStream_][], implementations MUST throw a
+ *       [_StreamThrowable_][].
  */
 interface StringableStream extends Stream, Stringable
 {
     /**
      * Returns the entire contents of the encapsulated resource as if by
-     * rewind()ing before returning stream_get_contents().
+     * [`rewind()`][]ing before returning [`stream_get_contents()`][].
      *
-     * The implementation MUST reposition the encapsulated resource pointer to
-     * its initial location.
+     * - Directives:
+     *
+     *     - Implementations MUST reposition the encapsulated resource pointer
+     *       to its initial location.
      *
      * @throws StreamThrowable on failure.
      */
@@ -31,16 +37,19 @@ interface StringableStream extends Stream, Stringable
      * Returns a string from the resource as if by seeking to an offset before
      * returning up to a certain number of bytes.
      *
-     * If the $offset is negative, the implementation MUST begin reading at
-     * that many bytes from the end of the stream; otherwise, the implementation
-     * MUST begin reading at that many bytes from teh start of the stream.
+     * - Directives:
      *
-     * If the $length is null, the implementation MUST return all remaining
-     * bytes from the stream; otherwise, the implementation MUST return up to
-     * that many bytes from the stream.
+     *     - If the $offset is negative, implementations MUST begin reading at
+     *       that many bytes from the end of the stream; otherwise,
+     *       implementations MUST begin reading at that many bytes from the
+     *       start of the stream.
      *
-     * The implementation MUST reposition the encapsulated resource pointer to
-     * its initial location.
+     *     - If the $length is null, implementations MUST return all remaining
+     *       bytes from the stream; otherwise, implementations MUST return up to
+     *       that many bytes from the stream.
+     *
+     *     - Implementations MUST reposition the encapsulated resource pointer
+     *       to its initial location.
      *
      * @param ?int<0,max> $length
      * @throws StreamThrowable on failure.
