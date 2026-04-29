@@ -15,7 +15,7 @@
         {
             "name": "Paul M. Jones",
             "email": "pmjones@pmjones.io",
-            "homepage": "https://pmjones.io/",
+            "homepage": "https://pmjones.io",
             "role": "Lead"
         }
     ],
@@ -30,10 +30,15 @@
     "require-dev": {
         "pds/skeleton": "^1.0",
         "pds/composer-script-names": "^1.0",
-        "phpstan/phpstan": "^2.0"
+        "phpstan/phpstan": "^2.0",
+        "star-interop/stardoc": "1.x-dev",
+        "pmjones/php-styler": "0.x@dev"
     },
     "scripts": {
-        "analyze": "./vendor/bin/phpstan analyze -c phpstan.neon",
-        "check": "composer analyze"
+        "analyze": "./vendor/bin/phpstan",
+        "check": "composer analyze && composer cs-clear && composer cs-check",
+        "cs-check": "./vendor/bin/php-styler check",
+        "cs-clear": "./vendor/bin/php-styler clear-cache",
+        "cs-fix": "./vendor/bin/php-styler apply"
     }
 }
