@@ -14,11 +14,11 @@ interface ResourceStream extends Stream
      *
      * - Directives:
      *
-     *     - The resource MUST be of type (stream); for example, as
-     *       determined by [`get_resource_type()`][].
+     *     - Implementations MUST ensure `$resource` is a `resource of type (stream)`;
+     *       for example, as determined by [`get_resource_type()`][].
      *
-     *     - The resource SHOULD NOT be publicly settable, either as a property
-     *       or via property hook or method.
+     *     - Implementations SHOULD NOT allow `$resource` to be publicly settable,
+     *       either as a property or via property hook or method.
      *
      * @var resource
      */

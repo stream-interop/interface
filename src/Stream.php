@@ -16,11 +16,13 @@ interface Stream
      *
      * - Directives:
      *
-     *     - The property MUST provide the most-recent metadata for the
-     *       encapsulated resource at the moment of property access.
+     *     - Implementations MUST provide the most-recent metadata for the
+     *       encapsulated resource at the moment of property access; if the
+     *       encapsulated resource is closed, implementations MUST return an
+     *       empty array.
      *
-     *     - The property MUST NOT be publicly settable, either directly or via
-     *       property hook or method.
+     *     - Implementations MUST NOT allow `$metadata` to be publicly settable,
+     *       either as a property or via property hook or method.
      *
      * @var metadata_array
      */
