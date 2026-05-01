@@ -1,5 +1,17 @@
 # Change Log
 
+## 1.0.1
+
+Documentation and tooling only; normative intent and meaning are unchanged from 1.0.0.
+
+- Adopt stardoc for README generation; rewrite docblocks in narrative voice.
+
+- Restructure README interface sections with explicit Properties and Methods subsections.
+
+- Narrow `@param` annotations for static analysis: `SeekableStream::seek($whence)` to `SEEK_CUR|SEEK_SET|SEEK_END`; `StringableStream::subString($length)` to `?int<0,max>`. Runtime signatures unchanged from 1.0.0.
+
+- Editorial: surface the `subString($length = null)` default in the README; typo fix in the filters Q&A; update RFC reference URLs.
+
 ## 1.0.0
 
 Stable release.
