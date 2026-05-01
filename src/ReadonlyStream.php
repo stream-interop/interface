@@ -4,7 +4,8 @@ declare(strict_types=1);
 namespace StreamInterop\Interface;
 
 /**
- * [_ReadonlyStream_][] marks the stream as enforcing readonly constraints on
+ * [_ReadonlyStream_][] is a marker interface that extends [_Stream_][] to
+ * indicate the implementation attempts to enforce readonly constraints on
  * the encapsulated resource.
  *
  * - Directives:
@@ -24,15 +25,30 @@ namespace StreamInterop\Interface;
  *
  *     - Implementations MUST NOT modify, or allow modification of, the
  *       encapsulated resource content after initialization, whether by
- *       implementing [_WritableStream_][] or by any other means.
+ *       implementing [_WritableStream_][] or by some other means.
  *
  *     - Implementations MUST NOT expose the encapsulated resource, whether
- *       by implementing [_ResourceStream_][] or by any other means.
+ *       by implementing [_ResourceStream_][] or by some other means.
+ *
+ *     - Implementations MAY allow closing of the encapsulated resource,
+ *       whether by implementing [_ClosableStream_][] or by some other means.
  *
  * - Notes:
  *
- *     - This marker interface indicates the implementation attempts to enforce
- *       the above constraints on the encapsulated resource.
+ *     - **The readonly constraints are necessarily strict.** Whereas readonly
+ *       on scalar and array properties can be implemented relatively easily,
+ *       readonly on a resource property is more difficult. The encapsulated
+ *       resource, including both its content and its pointer, must be
+ *       inaccessible from outside the [_ReadonlyStream_][] to ensure it cannot
+ *       be modified from outside the [_ReadonlyStream_][].
+ *
+ *     - **[_ReadonlyStream_][] implementations may be memory-intensive.** This
+ *       is because they usually have to be initialized with a copy of the
+ *       original resource, typically a file resource, thereby reading all of
+ *       it into a `php://memory` resource.
+ *
+ *     - **`php://input` is natively readonly.** It does not need to be copied
+ *       to a `php://memory` resource, and does not need to be initialized.
  */
 interface ReadonlyStream extends Stream
 {

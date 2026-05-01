@@ -93,9 +93,10 @@ The sheer volume of possible combinations of the various interfaces makes it dif
 [`pclose()`]: https://php.net/pclose
 [`popen()`]: https://php.net/popen
 [`rewind()`]: https://php.net/rewind
+[`stat()`]: https://php.net/stat
 [`stream_get_contents()`]: https://php.net/stream_get_contents
 [`stream_get_meta_data()`]: https://php.net/stream_get_meta_data
-[BCP 14]: https://www.rfc-editor.org/info/bcp14
+[BCP 14]: https://datatracker.ietf.org/doc/bcp14/
 [README-RESEARCH.md]: ./README-RESEARCH.md
 [RFC 2119]: https://datatracker.ietf.org/doc/html/rfc2119
 [RFC 8174]: https://datatracker.ietf.org/doc/html/rfc8174

@@ -8,7 +8,8 @@ use const SEEK_END;
 use const SEEK_SET;
 
 /**
- * [_SeekableStream_][] affords moving the stream pointer.
+ * [_SeekableStream_][] extends [_Stream_][] to afford moving the stream pointer
+ * position back and forth.
  *
  * - Directives:
  *
@@ -22,12 +23,20 @@ interface SeekableStream extends Stream
      * Moves the stream pointer position to the beginning of the stream as if
      * by [`rewind()`][].
      *
+     * - Directives:
+     *
+     *     - Implementations MUST throw a [_StreamThrowable_][] on failure.
+     *
      * @throws StreamThrowable on failure.
      */
     public function rewind() : void;
 
     /**
-     * Moves the stream pointer position to the $offset as if by [`fseek()`][].
+     * Moves the stream pointer position to the `$offset` as if by [`fseek()`][].
+     *
+     * - Directives:
+     *
+     *     - Implementations MUST throw a [_StreamThrowable_][] on failure.
      *
      * @param SEEK_CUR|SEEK_SET|SEEK_END $whence
      * @throws StreamThrowable on failure.
@@ -36,6 +45,10 @@ interface SeekableStream extends Stream
 
     /**
      * Returns the current stream pointer position as if by [`ftell()`][].
+     *
+     * - Directives:
+     *
+     *     - Implementations MUST throw a [_StreamThrowable_][] on failure.
      *
      * @throws StreamThrowable on failure.
      */
