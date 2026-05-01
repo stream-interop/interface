@@ -261,7 +261,7 @@ position back and forth.
 - ```php
   public function seek(
       int $offset,
-      SEEK_CUR|SEEK_SET|SEEK_END $whence = 0,
+      SEEK_CUR|SEEK_SET|SEEK_END $whence = SEEK_SET,
   ) : void;
   ```
     - Moves the stream pointer position to the `$offset` as if by [`fseek()`][].
